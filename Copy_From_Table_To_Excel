@@ -1,0 +1,5 @@
+Set rstName = CurrentDb.OpenRecordset("[Table/Query]")
+    rstName.MoveLast
+    rstName.MoveFirst 'Rewind to the first record
+    objMyWorkbook.Sheets(strSheet).Range("A2:W2").CopyFromRecordset rstName
+    rstName.Close
