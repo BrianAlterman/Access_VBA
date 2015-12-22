@@ -1,0 +1,63 @@
+Option Compare Database
+Option Explicit
+
+Function DynamicHTMLTable()
+    Dim db As DAO.Database
+    Dim rs As DAO.Recordset
+    
+    Dim objOutlook As Outlook.Application
+    Dim objOutlookAttach As Outlook.Attachment
+    Dim OutApp As Object
+    Dim OutMail As Object
+    Dim strHeader As String, strFooter As String, strBody As String
+    Dim vEmailAddr As String, vEmailSalutation As String, vEmailTo As String
+    Dim objDesktop As Object
+
+    Dim strHTMLHeader As String, strHTMLBody As String, strHTMLFooter As String
+    Dim strTable As String, strTableFooter As String, strTableHeader As String, strTableRow As String
+    
+    Set objOutlook = New Outlook.Application
+    Set OutMail = objOutlook.CreateItem(0)
+    Set db = CurrentDb
+    Set rs = db.OpenRecordset("tblData", dbOpenDynaset)
+    
+'**********************************************************************************************
+'HTML Table command definitions
+'colspan - Number of columns for table to span.  Set this to the number of columns you plan
+'   on having in your table
+'<tr> - Return to a new row within your table
+'<td> - Column break within your table
+'**********************************************************************************************
+    strTableHeader = "<table border=""4"" cellpadding=""2"" cellspacing=""4"" width = ""850"">"
+    strTableHeader = strTableHeader & "<tr><th colspan=""4""><div style=""background-color: #0000;"">" & _
+                "<b>Employee Data</b></th></tr><tr>"
+    strTableHeader = strTableHeader & "<b>Employee Name</b></th><td><b>Employee ID</b></th><td><b>Location</b>" & _
+        "</th><td><b>Hire Date</b></tr><tr>"
+    
+    rs.MoveLast
+    rs.MoveFirst
+    strTableRow = ""
+    Do While Not rs.EOF
+        strTableRow = strTableRow & rs![EmpName] & "</th><td>" & rs![EmpID] & "</th><td>" & rs![Location] & _
+            "</th><td>" & rs![HireDate] & "</tr><tr>"
+        rs.MoveNext
+    Loop
+    strTableRow = Left(strTableRow, Len(strTableRow) - 4)
+'    Debug.Print strTableRow
+
+    strTableFooter = "</td></div>"
+    
+    strHTMLHeader = "<html><head></head><body>"
+    strHTMLBody = strTableHeader & strTableRow & strTableFooter
+    strHTMLFooter = "</body></html>"
+    
+    OutMail.To = "wgelpi@familydollar.com"
+    OutMail.Subject = "Daniel's Email Test"
+    OutMail.HTMLBody = strHTMLHeader & strHTMLBody & strHTMLFooter
+    'Optional for attachment
+    'OutMail.Attachments.Add strExportPath & "\rptRedYellowGreen.pdf"
+    OutMail.display  'Send | Display
+    Set OutMail = Nothing
+
+End Function
+
