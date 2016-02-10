@@ -1,0 +1,106 @@
+Option Compare Database
+Option Explicit
+
+Function LogError(ByVal lErrNumber As Long, ByVal sErrDescription As String, sCallingProc As String, Optional vParameters, Optional bShowUser As Boolean = True) As Boolean
+On Error GoTo Err_LogError
+' Purpose: Generic error handler.
+' Logs errors to table "tLogError".
+' Arguments: lErrNumber - value of Err.Number
+' sErrDescription - value of Err.Description
+' sCallingProc - name of sub|function that generated the error.
+' vParameters - optional string: List of parameters to record.
+' bShowUser - optional boolean: If False, suppresses display.
+
+Dim sMessage            As String           ' String for display in MsgBox
+Dim db                  As DAO.Database     ' Database for CurrentDB
+Dim rst                 As DAO.Recordset    ' The tLogError table
+Dim rstEmail            As DAO.Recordset    ' Recordset to pick up email address stored in TBL_EMAIL
+Dim objOutlook          As Outlook.Application
+Dim OutMail             As Object
+Dim strEmailBody        As String
+Dim strTo               As String
+Dim strSubject          As String
+
+
+    Select Case lErrNumber
+    Case 0
+'        Debug.Print sCallingProc & " called error 0."
+    
+    Case 2501                ' Cancelled
+        'Do nothing.
+    
+    Case 3314, 2101, 2115    ' Can't save.
+        If bShowUser Then
+            sMessage = "Record cannot be saved at this time." & vbCrLf & _
+                "Complete the entry, or press <Esc> to undo."
+            MsgBox sMessage, vbExclamation, sCallingProc
+        End If
+    
+    Case Else
+        If bShowUser Then
+            sMessage = "Error " & lErrNumber & ": " & sErrDescription
+'            MsgBox sMessage, vbExclamation, sCallingProc
+        End If
+        Set rst = CurrentDb.OpenRecordset("tblErrorLog", , dbAppendOnly)
+        rst.AddNew
+            rst![errorNumber] = lErrNumber
+            rst![errorDescription] = Left$(sErrDescription, 255)
+            rst![errorDate] = Now()
+            rst![callingProcedure] = sCallingProc
+            rst![UserName] = CurrentUser()
+            rst![showUser] = bShowUser
+            If Not IsMissing(vParameters) Then
+                rst![Parameters] = Left(vParameters, 255)
+            End If
+        rst.Update
+        rst.Close
+        LogError = True
+    
+    End Select
+    
+    Set db = CurrentDb
+    Set rstEmail = db.OpenRecordset("TBL_EMAIL", dbOpenDynaset)
+    rstEmail.MoveLast
+    rstEmail.MoveFirst
+    
+    strTo = ""
+    If rstEmail.RecordCount > 1 Then
+        Do While Not rstEmail.EOF
+            strTo = strTo & ";" & rstEmail![TO_ADDR]
+            rstEmail.MoveNext
+        Loop
+    Else
+        strTo = rstEmail![TO_ADDR]
+    End If
+    
+    Set objOutlook = New Outlook.Application
+    Set OutMail = objOutlook.CreateItem(0)
+    
+    strEmailBody = "An error has occurred in the Vehicle Policy Training Database!  Please fix error and re-run the database."
+    strSubject = "ERROR! - Vehicle Policy Training Database"
+    
+    OutMail.To = strTo
+    OutMail.Subject = strSubject
+    OutMail.HTMLBody = strEmailBody
+    OutMail.Display
+    OutMail.Send
+    
+    Set OutMail = Nothing
+    rstEmail.Close
+    Set rstEmail = Nothing
+
+Exit_LogError:
+    Set rst = Nothing
+    Exit Function
+
+Err_LogError:
+    sMessage = "An unexpected situation arose in your program." & vbCrLf & _
+        "Please write down the following details:" & vbCrLf & vbCrLf & _
+        "Calling Proc: " & sCallingProc & vbCrLf & _
+        "Error Number " & lErrNumber & vbCrLf & sErrDescription & vbCrLf & vbCrLf & _
+        "Unable to record because Error " & Err.Number & vbCrLf & Err.Description
+    MsgBox sMessage, vbCritical, "LogError()"
+    
+    Resume Exit_LogError
+    
+End Function
