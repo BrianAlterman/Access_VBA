@@ -1,0 +1,78 @@
+Option Compare Database
+Option Explicit
+'*********************************************************************
+'This function will refresh tables listed in tblODBCTables
+'tblODBCTables is intended to be a local table where as tblConnections
+'should be a linked table back to this database.
+'*********************************************************************
+
+Function RefreshODBC()
+On Error GoTo RefreshODBC_Err
+    Dim DAOdb As DAO.Database, db As DAO.Database
+    Dim tblDef As DAO.TableDef
+    Dim qryDef As DAO.QueryDef
+    Dim rsConn As DAO.Recordset, rsODBCCons As DAO.Recordset, rs As DAO.Recordset
+    Dim strConnectOld As String, mySQL As String, strUserID As String, strPass As String, strConnType As String
+    Dim strDSN As String, strDBQ As String, strTables As String
+    Dim strConnString As String
+    
+    Set DAOdb = CurrentDb
+    
+    strConnType = ""
+    mySQL = "SELECT [Connection] FROM tblODBCTables GROUP BY Connection;"
+    Set rsODBCCons = DAOdb.OpenRecordset(mySQL, dbOpenDynaset)
+
+    If rsODBCCons.RecordCount > 0 Then
+        rsODBCCons.MoveLast
+        rsODBCCons.MoveFirst
+        
+        Do While Not rsODBCCons.EOF
+            strConnType = rsODBCCons![Connection]
+            mySQL = "SELECT * FROM tblODBCTables WHERE [Connection] = '" & strConnType & "';"
+            Set rsConn = DAOdb.OpenRecordset(mySQL, dbOpenDynaset)
+            rsConn.MoveLast
+            rsConn.MoveFirst
+            
+            strUserID = DLookup("UserID", "tblConnections", "[DSN] = '" & strConnType & "'")
+            strPass = Nz(DLookup("Password", "tblConnections", "[DSN] = '" & strConnType & "'"))
+            strDSN = DLookup("DSN", "tblConnections", "[DSN] = '" & strConnType & "'")
+            strDBQ = DLookup("DBQ", "tblConnections", "[DSN] = '" & strConnType & "'")
+            strConnString = DLookup("ConnectionString", "tblConnections", "[DSN] = '" & strConnType & "'")
+            strConnString = Replace(strConnString, "[DSN]", strDSN)
+            strConnString = Replace(strConnString, "[DBQ]", strDBQ)
+            strConnString = Replace(strConnString, "[UserID]", strUserID)
+            strConnString = Replace(strConnString, "[Password]", strPass)
+            
+            Do While Not rsConn.EOF
+                If rsConn![QueryFlag] = -1 Then
+                    Set qryDef = DAOdb.QueryDefs(rsConn![Table])
+                    qryDef.Connect = strConnString
+                Else
+                    Set tblDef = DAOdb.TableDefs(rsConn![Table])
+                    tblDef.Connect = strConnString
+                    tblDef.RefreshLink
+                End If
+                rsConn.MoveNext
+            Loop
+            rsConn.Close
+            rsODBCCons.MoveNext
+        Loop
+        rsODBCCons.Close
+    End If
+
+    
+RefreshODBC_Exit:
+    DoCmd.SetWarnings True
+    DoCmd.Hourglass False
+    Set DAOdb = Nothing
+    Set db = Nothing
+    Set rs = Nothing
+    Set tblDef = Nothing
+    Set rsConn = Nothing
+    Set rsODBCCons = Nothing
+    Exit Function
+    
+RefreshODBC_Err:
+    Call LogError(Err.Number, Err.Description, "RefreshODBC")
+    DoCmd.Quit acQuitSaveAll
+End Function
