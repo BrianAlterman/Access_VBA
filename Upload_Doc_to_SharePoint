@@ -1,0 +1,4 @@
+Dim strSharePointSite as string
+
+strSharePointSite = "http://aisles.familydollar.com/teams/TMSA/Reports/HSLC/"
+DoCmd.OutputTo acOutputReport, "rptDivBreakdown", acFormatPDF, strSharePointSite & "rptDivBreakdown_" & Format(Date, "yyyymmdd") & ".pdf", False
