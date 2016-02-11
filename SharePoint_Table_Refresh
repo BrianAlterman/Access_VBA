@@ -1,0 +1,31 @@
+'***Single Table
+    mySQL = "SELECT * FROM [Table Name];"
+    Set rs = CurrentDb.OpenRecordset(mySQL)
+    rs.Requery
+    DoEvents
+    rs.Close
+
+'***Multiple Tables
+Function RefreshSharePoint()
+    Dim db          As DAO.Database
+    Dim rs          As DAO.Recordset
+    Dim rsTables    As DAO.Recordset
+    Dim mySQL       As String
+    
+    Set db = CurrentDb
+    mySQL = "SELECT * FROM TBL_SHAREPOINT_TABLES;"
+    Set rsTables = db.OpenRecordset(mySQL)
+    If rsTables.RecordCount > 0 Then
+        rsTables.MoveLast
+        rsTables.MoveFirst
+        
+        Do While Not rsTables.EOF
+            mySQL = "SELECT * FROM [" & rsTables![Table] & "];"
+            Set rs = CurrentDb.OpenRecordset(mySQL)
+            rs.Requery
+            DoEvents
+            rs.Close
+            rsTables.MoveNext
+        Loop
+    End If
+End Function
