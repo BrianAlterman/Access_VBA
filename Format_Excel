@@ -1,0 +1,52 @@
+Function IsExcelRunning() As Boolean
+    Dim xlApp As Excel.Application
+On Error Resume Next
+    Set xlApp = GetObject(, "Excel.Application")
+    IsExcelRunning = (Err.Number = 0)
+    Set xlApp = Nothing
+    Err.Clear
+End Function
+
+Function funExportBatch()
+'On Error GoTo ErrorHandler
+    Dim strFileLoc As String, strFileName As String, strFileExt As String, strTableName As String
+    Dim strVendor As String
+    Dim xlApp As Object
+    Dim xlSheet As Object
+    Dim ExcelRunning As Boolean, ExcelOpen As Boolean
+    
+    ExcelRunning = IsExcelRunning()
+    
+    If ExcelRunning Then
+        Set xlApp = GetObject(, "Excel.Application")
+        ExcelOpen = True
+    Else
+        Set xlApp = CreateObject("Excel.Application")
+        ExcelOpen = False
+    End If
+    
+    strFileLoc = ""
+    strFileName = ""
+    strFileExt = ""
+
+    Set xlSheet = xlApp.Workbooks.Open(strFileLoc & strFileName & strFileExt).Sheets(1)
+    
+    '...Add format code
+
+    With xlApp.Application
+        .ActiveWorkbook.Save
+        .ActiveWorkbook.Close
+    End With
+    
+ResumeError:
+    If Not ExcelOpen Then
+        xlApp.Quit
+    End If
+    DoCmd.Hourglass False
+    DoCmd.SetWarnings True
+    Exit Function
+    
+ErrorHandler:
+    MsgBox Err.Number & " - " & Err.Description, vbCritical, "Critical Error!"
+    GoTo ResumeError
+End Function
