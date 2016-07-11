@@ -1,0 +1,33 @@
+Function CreateHTMLMail()
+'Dim rsEmailsToSend As ADODB.Recordset
+Dim objOLK As Object
+Dim olkMail As Object
+Dim strSubject As String
+Dim myattachments As Object
+Dim tempReg As String
+Dim Message
+
+    
+    Set objOLK = CreateObject("Outlook.application")
+    Set olkMail = objOLK.CreateItem(0)
+    
+    olkMail.To = "JAquilone@FAMILYDOLLAR.com;AOLIVIER@FAMILYDOLLAR.com;jwillis3@FAMILYDOLLAR.com; DMiles2@FAMILYDOLLAR.com"
+    olkMail.CC = "NNeely@FAMILYDOLLAR.com; sdemick@FamilyDollar.com; droos@familydollar.com"
+    'olkMail.SentOnBehalfOfName = "TMSA_NoReply@FAMILYDOLLAR.COM"
+    olkMail.Subject = "New Orleans EEO/Harassment Report " & Format(Date, "yyyy_mm_dd")
+            
+    Message = "Report attached.<br><br>Have a great day,<br>TM Analytics"
+    olkMail.HTMLBody = Message
+    
+    Set myattachments = olkMail.Attachments
+    myattachments.Add "\\ncmain\users\COMMON_HR\#HRIS\Reports\New_Orleans_EEOHARASS_Comp\Reports Sent\NO_EEOHARASS_" & Format(Date, "yyyy_mm_dd") & ".xlsx"
+            
+    olkMail.ReadReceiptRequested = False
+    'olkMail.Display
+    olkMail.Send
+    
+    Set olkMail = Nothing
+    Set objOLK = Nothing
+
+End Function
+   
