@@ -1,0 +1,4 @@
+Compare to columns in query:
+
+Gender_Match: IIf([TBL_2_HEADCOUNT_HIRE_DATA].[Gender (Hire)]<>[TBL_2_HEADCOUNT_HIRE_DATA].[Gender],'CHANGED','SAME')
+
