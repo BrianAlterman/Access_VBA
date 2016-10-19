@@ -1,0 +1,7 @@
+Compare to columns in query:
+
+Gender_Match: IIf([TBL_2_HEADCOUNT_HIRE_DATA].[Gender (Hire)]<>[TBL_2_HEADCOUNT_HIRE_DATA].[Gender],'CHANGED','SAME')
+
+Replace a value (or null) if:
+
+iif([Ethnic_Group (Hire)] Is Null,"NULL", [Ethnic_Group (Hire)])
