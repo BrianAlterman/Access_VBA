@@ -1,0 +1,20 @@
+Function RunAllQueries()
+
+MsgBox "Running Queries (1-10)" 'if you want a message box
+
+DoCmd.SetWarnings False 'prevents you from getting pop up messages
+
+DoCmd.OpenQuery "1_QRY_TALEO_NO_EIN" ' will run query - repeat as many times as necessary
+DoCmd.OpenQuery "2_QRY_TALEO_YES_EIN"
+DoCmd.OpenQuery "3_QRY_TALEO_NO_EIN_MATCHED"
+DoCmd.OpenQuery "4_QRY_TALEO_NO_EIN_MATCHED_APPEND"
+DoCmd.OpenQuery "5_QRY_KENEXA_MASTER"
+DoCmd.OpenQuery "6_QRY_TALEO_APPEND_TO_MASTER"
+DoCmd.OpenQuery "7_QRY_PEOPLESOFT_APPEND_TO_MASTER"
+DoCmd.OpenQuery "8_QRY_TRANSLATE_MASTER_EDUCATION"
+DoCmd.OpenQuery "9_QRY_MAX_RANK"
+DoCmd.OpenQuery "10_QRY_FINAL_OUTPUT_FILE"
+
+DoCmd.SetWarnings True ' ends the "no pop up messages function"
+
+End Function
