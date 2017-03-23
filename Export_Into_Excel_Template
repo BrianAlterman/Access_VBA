@@ -1,0 +1,12 @@
+Function Transfer()
+
+Dim xlsxDestinationWorkbook As String
+
+FileCopy "\\1dc.com\common\OMA_COMMON1\HRDEX\Corporate Reporting\Spans and Layers\Spans & Layers MASTER_TEMPLATE.xlsb", _
+"\\1dc.com\common\OMA_COMMON1\HRDEX\Corporate Reporting\Spans and Layers\Spans & Layers MASTER_" & Format(Date, "yyyy_mm_dd") & ".xlsb"
+
+xlsxDestinationWorkbook = "\\1dc.com\common\OMA_COMMON1\HRDEX\Corporate Reporting\Spans and Layers\Spans & Layers MASTER_" & Format(Date, "yyyy_mm_dd") & ".xlsb"
+
+DoCmd.TransferSpreadsheet acExport, , "QRY_HEADCOUNT_OA_DETAIL", xlsxDestinationWorkbook, False, "Headcount Detail"
+
+End Function
