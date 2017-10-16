@@ -1,0 +1,7 @@
+Private Sub Workbook_Open()
+    With Worksheets("Roster")
+        .Unprotect "password"
+        .EnableOutlining = True
+        .Protect "password", AllowFiltering:=True, contents:=True, userInterfaceOnly:=True
+    End With
+End Sub
