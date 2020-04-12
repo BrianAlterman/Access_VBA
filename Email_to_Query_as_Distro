@@ -1,0 +1,75 @@
+Function CreateHTMLMail()
+
+Dim objOLK As Object
+Dim olkMail As Object
+Dim strSubject As String
+Dim myattachments As Object
+Dim tempReg As String
+Dim Message
+Dim strEmail As String
+Dim rs As Recordset
+Dim sql As String
+Dim i As Integer
+
+    sql = "SELECT * FROM SQ_Managers_Emails"
+    Set rs = CurrentDb.OpenRecordset(sql)
+
+    With rs
+        If Not .EOF And Not .BOF Then
+            .MoveLast
+            .MoveFirst
+
+            For i = 0 To .RecordCount - 1
+                If i = 0 Then
+                    strEmail = !Email
+                Else
+                    strEmail = strEmail & "; " & !Email
+                End If
+                .MoveNext
+            Next
+        End If
+    End With
+    
+    
+    Set objOLK = CreateObject("Outlook.application")
+    Set olkMail = objOLK.CreateItem(0)
+    
+    olkMail.BCC = strEmail
+    olkMail.CC = "Brian.Alterman@Windstream.com"
+    olkMail.SentOnBehalfOfName = "WINDSTREAM.TalentAcquisition@windstream.com"
+    olkMail.Subject = "I-9 Verification Update"
+            
+    Message = "<font face=Arial size=4>" & _
+    "Team,<br><br>Due to COVID-19, we may need to modify our I-9 verification process while we have many employees working remotely.  " & _
+    "The DHS has announced that it will defer the requirements for us to review the documents in person with new employees in certain cases.  " & _
+    "Please note, that if there are employees physically present at a worksite, there is no exception for the <i>in-person</i> requirement.  " & _
+    "However, when on-site verification is not possible due to precautions implemented for COVID-19, the exception procedures will allow us to " & _
+    "temporarily verify remotely.  <BR>" & _
+    "For these, we will be required to provide written documentation of the remote onboarding and telework policy for each employee. <BR><BR>" & _
+    "<b>I-9 Exception procedures (if working remotely <font color=#0000FF>due to COVID-19</font>) - Still required within 3 business days.</b>" & _
+        "<ul>" & _
+            "<li>Inspect the Section 2 documents remotely (over video, fax, e-mail)</li>" & _
+            "<li>Obtain, inspect and retain copies of the documents</li>" & _
+            "<li>Complete Section 2 of the I-9</li>" & _
+            "<li>Note &#34COVID-19&#34 in the 'Additional Information Field' on Section 2 of the form</li>" & _
+        "</ul>" & _
+    "<b>Once normal operations resume, for employees onboarded using the remote process:</b>" & _
+        "<ul>" & _
+            "<li>Employee must provide in person verification of identity and eligibility documentation within 3 days.</li>" & _
+            "<li>Once the documents have been physically inspected, the employer should add &#34documents physically examined&#34 with the" & _
+            "date of inspection in the &#34Additional Information&#34 field in Section 2 of the I-9.</li>" & _
+        "</ul>" & _
+    "Thank you<BR><BR>Talent Acquisition</font>"
+
+
+    olkMail.HTMLBody = Message
+    
+    Set myattachments = olkMail.Attachments
+            
+    olkMail.ReadReceiptRequested = False
+    olkMail.Send
+    
+    Set olkMail = Nothing
+    Set objOLK = Nothing
+
+End Function
