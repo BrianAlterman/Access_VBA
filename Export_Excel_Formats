@@ -1,0 +1,7 @@
+'Export date to xlsx
+DoCmd.TransferSpreadsheet acExport, acSpreadsheetTypeExcel12Xml, "MURRAY_ROSTER", _
+       "\\vnx0544cifs01.windstream.com\HR0175\Brian_Alterman\Reporting\File_Staging\Murray_Daily_Roster\Murray_Daily_Roster_" & Format(Date, "yyyy_mm_dd") & ".xlsx", True
+       
+'Export data to .csv
+DoCmd.TransferText acExportDelim, , "For_Export", "\\vnx0544cifs01.windstream.com\HR0175\Brian_Alterman\Reporting\File_Staging\MSEP_Interface\MSEP_Interface_" & Format(Date, "yyyy_mm_dd") & ".csv", True
+       
