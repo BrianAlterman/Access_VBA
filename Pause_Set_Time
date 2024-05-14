@@ -1,0 +1,29 @@
+Function Pause() ' This function will time 5 minutes
+    On Error GoTo Error_GoTo
+
+    Dim PauseTime As Variant
+    Dim Start As Variant
+    Dim Elapsed As Variant
+
+    PauseTime = 300
+    Start = Timer
+    Elapsed = 0
+    Do While Timer < Start + PauseTime
+        Elapsed = Elapsed + 1
+        If Timer = 0 Then
+            ' Crossing midnight
+            PauseTime = PauseTime - Elapsed
+            Start = 0
+            Elapsed = 0
+        End If
+        DoEvents
+    Loop
+
+Exit_GoTo:
+    On Error GoTo 0
+    Exit Function
+Error_GoTo:
+    Debug.Print Err.Number, Err.Description, Erl
+    GoTo Exit_GoTo
+    
+End Function
