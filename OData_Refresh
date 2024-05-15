@@ -1,0 +1,21 @@
+Function Linked_Table_Refresh()
+
+DoCmd.SetWarnings False 'prevents you from getting pop up messages
+
+Dim ObjExcel, ObjWB
+Set ObjExcel = CreateObject("excel.application")
+ObjExcel.DisplayAlerts = False
+Set ObjWB = ObjExcel.Workbooks.Open("\\winazstorage.file.core.windows.net\HR0175\Brian_Alterman\Reporting\File_Staging\ODATA_FILES\KH_ACTIVE_EMPLS_CULTURE_CREW.xlsx")
+ObjWB.RefreshAll
+
+Call Pause
+
+ObjWB.SaveAs FileName:="\\winazstorage.file.core.windows.net\HR0175\Brian_Alterman\Reporting\File_Staging\ODATA_FILES\KH_ACTIVE_EMPLS_CULTURE_CREW.xlsx"
+ObjWB.Close
+
+Set ObjWB = Nothing
+Set ObjExcel = Nothing
+
+DoCmd.SetWarnings True 'ends the "no pop up messages function"
+
+End Function
